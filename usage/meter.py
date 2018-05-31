@@ -10,6 +10,8 @@ from reading import Reading
 
 logger = logging.getLogger('usage.meter')
 
+EXTRA_TIME = 7200
+
 
 def _cmp_sample(a, b):
     """Compare two samples.
@@ -47,7 +49,7 @@ class Meter:
         self.max_samples = max_samples
 
         # Extra time is 4 hours. 4 * 60 * 60 = 14400
-        self._extra_time = datetime.timedelta(seconds=14400)
+        self._extra_time = datetime.timedelta(seconds=EXTRA_TIME)
 
     def last_non_deleted_sample(self, group):
         """Get last sample that is not in deleted or deleting.

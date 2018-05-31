@@ -5,6 +5,8 @@ from log import logging
 
 logger = logging.getLogger('usage.query')
 
+MIN_TIME_DELTA = 0.010
+
 _OPS = {
     "gt": ">",
     "ge": ">=",
@@ -168,9 +170,9 @@ class Scheduler(object):
         this_q.append(query('timestamp', 'gt', start, 'datetime'))
         this_q.append(query('timestamp', 'le', stop, 'datetime'))
         count = self._count(this_q)
+        d = (stop - start) / 2
         logger.debug("Checking {} - {} - {}".format(start, stop, count))
-        if count > self.max_samples:
-            d = (stop - start) / 2
+        if count > self.max_samples and d.total_seconds() > MIN_TIME_DELTA:
             self._schedule(start, start + d)
             self._schedule(start + d, stop)
         else:
