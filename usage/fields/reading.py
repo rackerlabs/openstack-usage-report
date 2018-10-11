@@ -87,17 +87,22 @@ def metadata_field(key, r):
     if not value:
         value = _i_get(metadata, i_map, 'x-container-meta-{}'.format(key))
 
-    # Try cinder next.
-    # Metadata fields are stored as a list of metadata objects.
+    # Try cinder next or glance snapshots next..
+    # Cinder metadata fields are stored as a list of metadata objects.
+    # Snapshot metadata fields are stored as a string repr of a dict
     if not value:
-        cinder_data = metadata.get('metadata')
-        if isinstance(cinder_data, unicode) or isinstance(cinder_data, str):
+        data = metadata.get('metadata')
+        if isinstance(data, unicode) or isinstance(data, str):
             try:
-                cinder_data = ast.literal_eval(cinder_data)
-                for obj in cinder_data:
-                    if obj.get('key').lower() == key.lower():
-                        value = obj.get('value')
-                        break
+                data = ast.literal_eval(data)
+                if isinstance(data, list):
+                    for obj in data:
+                        if obj.get('key').lower() == key.lower():
+                            value = obj.get('value')
+                            break
+                elif isinstance(data, dict):
+                    nested_i_map = _i_map(data)
+                    value = _i_get(data, nested_i_map, key)
             except Exception:
                 pass
 
