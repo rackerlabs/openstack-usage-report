@@ -9,6 +9,7 @@ from keystoneauth1 import session
 from ceilometerclient import client as ceilometerclient
 
 from cinderclient import client as cinderclient
+from glanceclient import client as glanceclient
 
 
 _CM = None
@@ -75,6 +76,7 @@ class ClientManager(object):
         self.session = None
         self.cinder = None
         self.ceilometer = None
+        self.glance = None
         self.domain = None
         self.auth_kwargs = kwargs
 
@@ -132,6 +134,22 @@ class ClientManager(object):
                 kwargs['interface'] = self.auth_kwargs['endpoint_type']
             self.domain = DomainClient(**kwargs)
         return self.domain
+
+    def get_glance(self, version='2'):
+        """Get a glance client instance
+
+        :param version: Api version
+        :type version: str
+        :return: Glance client instance
+        :rtype: glanceclient.client.Client
+        """
+        if self.glance is None:
+            kwargs = {'session': self.get_session()}
+            if 'endpoint_type' in self.auth_kwargs:
+                kwargs['interface'] = self.auth_kwargs['endpoint_type']
+            self.glance = glanceclient.Client(version, **kwargs)
+        return self.glance
+        
 
 
 def create_client_manager(**kwargs):
