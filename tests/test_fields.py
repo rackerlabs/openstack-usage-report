@@ -92,6 +92,12 @@ class TestMetadataField(unittest.TestCase):
         # Test insensitive key
         self.assertEquals(metadata_field('metadata:tESt', r), 'glance')
 
+    def test_snapshot_metadata(self):
+        # Test snapshot metadata. Nested in resource metadata.
+        metadata = {'metadata': unicode("{'tESt': 'glance'}")}
+        r = FakeReading(metadata=metadata)
+        self.assertEquals(metadata_field('metadata:TesT', r), 'glance')
+
     def test_cinder_metadata(self):
         metadata = {
             'metadata': unicode("[{'key': 'test', 'value': 'cinder'}]")
